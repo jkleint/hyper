@@ -66,10 +66,10 @@
 //!
 //! #### Handler + Server
 //!
-//! A Handler in Hyper just accepts an Iterator of `(Request, Response)` pairs and
-//! does whatever it wants with it. This gives Handlers maximum flexibility to decide
-//! on concurrency strategy and exactly how they want to distribute the work of
-//! dealing with `Request` and `Response.`
+//! A `Handler` in Hyper accepts a `Request` and `Response`. This is where
+//! user-code can handle each connection. The server accepts connections in a
+//! task pool with a customizable number of threads, and passes the Request /
+//! Response to the handler.
 //!
 //! #### Request
 //!
@@ -133,9 +133,9 @@ extern crate openssl;
 #[phase(plugin,link)] extern crate log;
 #[cfg(test)] extern crate test;
 extern crate "unsafe-any" as uany;
-extern crate "move-acceptor" as macceptor;
 extern crate typeable;
 extern crate cookie;
+extern crate taskpool;
 
 pub use std::io::net::ip::{SocketAddr, IpAddr, Ipv4Addr, Ipv6Addr, Port};
 pub use mimewrapper::mime;
@@ -250,7 +250,4 @@ impl FromError<IoError> for HttpError {
 fn _assert_send<T: Send>() {
     _assert_send::<client::Request<net::Fresh>>();
     _assert_send::<client::Response>();
-
-    _assert_send::<server::Request>();
-    _assert_send::<server::Response<net::Fresh>>();
 }
